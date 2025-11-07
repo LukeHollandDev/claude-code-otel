@@ -8,8 +8,8 @@ exporters:
   # exports metrics data on 0.0.0.0:9999
   prometheus:
     endpoint: 0.0.0.0:9999
-  # sends log data to Loki container
-  otlphttp/loki:
+  # exports metrics to the Loki container otlp endpoint
+  otlphttp:
     endpoint: http://loki:3100/otlp
   # output to logs
   debug:
@@ -20,7 +20,7 @@ service:
     # send logs to loki and debug exporters
     logs:
       receivers: [ otlp ]
-      exporters: [ otlphttp/loki, debug ]
+      exporters: [ otlphttp, debug ]
     # send metrics to prometheus and debug exporters
     metrics:
       receivers: [ otlp ]

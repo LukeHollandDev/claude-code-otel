@@ -2,19 +2,29 @@ name: claude-code-otel
 
 services:
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
+    image: otel/opentelemetry-collector:latest
     volumes:
-      - ./config/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+      - ./config/otel.yaml:/etc/otelcol/config.yaml
     ports:
-      - "4317:4317" # OTLP gRPC
-      - "9999:9999" # Prometheus scrape endpoint
+      - "4317:4317"
+      - "9999:9999"
 
   prometheus:
     image: prom/prometheus:latest
     volumes:
       - ./config/prometheus.yaml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
     ports:
       - "9090:9090"
+
+  loki:
+    image: grafana/loki:latest
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./config/loki.yaml:/etc/loki/local-config.yaml
+      - loki-data:/tmp/loki
+    ports:
+      - "3100:3100"
 
   grafana:
     image: grafana/grafana:latest
@@ -23,7 +33,14 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
       - ./config/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - grafana-data:/var/lib/grafana
     ports:
       - "3000:3000"
     depends_on:
       - prometheus
+      - loki
+
+volumes:
+  prometheus-data:
+  loki-data:
+  grafana-data:
