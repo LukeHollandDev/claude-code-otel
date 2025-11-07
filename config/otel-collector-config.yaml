@@ -5,16 +5,27 @@ receivers:
         endpoint: 0.0.0.0:4317
 
 exporters:
+  # exports metrics data on 0.0.0.0:9999
   prometheus:
     endpoint: 0.0.0.0:9999
+  # sends log data to Loki container
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+  # output to logs
   debug:
     verbosity: detailed
 
 service:
   pipelines:
-    metrics:
-      receivers: [otlp]
-      exporters: [prometheus]
+    # send logs to loki and debug exporters
     logs:
-      receivers: [otlp]
-      exporters: [debug]
+      receivers: [ otlp ]
+      exporters: [ otlphttp/loki, debug ]
+    # send metrics to prometheus and debug exporters
+    metrics:
+      receivers: [ otlp ]
+      exporters: [ prometheus, debug ]
+    # send metrics to the debug exporter
+    traces:
+      receivers: [ otlp ]
+      exporters: [ debug ]
