@@ -8,9 +8,14 @@ exporters:
   # export metrics data on 0.0.0.0:9999
   prometheus:
     endpoint: 0.0.0.0:9999
-  # export metrics to the Loki container otlp endpoint
+  # export logs to the Loki container otlp endpoint
   otlphttp/loki:
     endpoint: http://loki:3100/otlp
+  # export traces to the Tempo container
+  otlp/tempo:
+    endpoint: tempo:5317
+    tls:
+      insecure: true
   # output to logs
   debug:
     verbosity: detailed
@@ -25,7 +30,7 @@ service:
     metrics:
       receivers: [ otlp ]
       exporters: [ prometheus, debug ]
-    # send traces to the debug exporter
+    # send traces to Tempo and debug exporter
     traces:
       receivers: [ otlp ]
-      exporters: [ debug ]
+      exporters: [ otlp/tempo, debug ]

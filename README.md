@@ -7,9 +7,18 @@ OpenTelemetry.
 
 ### OpenTelemetry Stack
 
+Start the Docker stack which runs the following containers;
+
+- `OpenTelemetry`
+- `Loki` - logs
+- `Tempo` - traces (not required for Claude Code)
+- `Prometheus` - metrics
+
 ```shell
 docker compose up -d
 ```
+
+Volumes are used so that data should persist between restarts.
 
 ### Claude Code Configuration
 
@@ -53,7 +62,7 @@ These can also be set in the `.claude/settings.json`:
 
 The Grafana container can be accessed at http://localhost:3000, default username/password is `admin`:`admin`.
 
-It is preconfigured to have Prometheus (for metrics) and Loki (for logs) as datasources.
+It is preconfigured to have Prometheus (for metrics), Loki (for logs) and Tempo (for traces) as datasources.
 
 ## Claude Code Monitoring
 
