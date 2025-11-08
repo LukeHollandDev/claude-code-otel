@@ -1,36 +1,64 @@
 # Claude Code - OpenTelemetry
 
-This repository provides a ready-to-use Docker stack to ingest OpenTelemetry metrics from Claude Code.
+This repository provides a simple stack to view and explore the metrics and logs emitted from Claude Code via
+OpenTelemetry.
 
 ## Usage
 
-1. Start the Docker stack which starts the following containers: OTEL Collector, Prometheus and Grafana.
+### OpenTelemetry Stack
 
 ```shell
-docker compose up -d 
+docker compose up -d
 ```
 
-2. Set Claude Code environment variables so it sends the metrics to the OTEL Collector.
+### Claude Code Configuration
+
+The following Claude Code environment variables are the minimum required to send the metrics and logs to our
+OpenTelemetry collector, check out [Claude Code Monitoring](https://code.claude.com/docs/en/monitoring-usage) for more.
 
 ```shell
-source ./env.sh
+# enable telemetry
+export CLAUDE_CODE_ENABLE_TELEMETRY=1
+# use otlp exporter and point to locally hosted endpoint
+export OTEL_METRICS_EXPORTER=otlp
+export OTEL_LOGS_EXPORTER=otlp
+export OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+# enable logging of prompts and including details in metrics
+export OTEL_LOG_USER_PROMPTS=1
+export OTEL_METRICS_INCLUDE_SESSION_ID=true
+export OTEL_METRICS_INCLUDE_VERSION=true
+export OTEL_METRICS_INCLUDE_ACCOUNT_UUID=true
 ```
 
-3. Start Claude Code, should see the metrics appearing in Grafana.
+These can also be set in the `.claude/settings.json`:
 
-```shell
-claude
+```json
+{
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_LOGS_EXPORTER": "otlp",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317",
+    "OTEL_LOG_USER_PROMPTS": "1",
+    "OTEL_METRICS_INCLUDE_SESSION_ID": "true",
+    "OTEL_METRICS_INCLUDE_VERSION": "true",
+    "OTEL_METRICS_INCLUDE_ACCOUNT_UUID": "true"
+  }
+}
 ```
 
-## Grafana
+## Grafana Dashboard
 
-The Grafana instance can be accessed at http://localhost:3000, default username/password is `admin`:`admin`.
+The Grafana container can be accessed at http://localhost:3000, default username/password is `admin`:`admin`.
 
-Prometheus datasource is automatically configured.
+It is preconfigured to have Prometheus (for metrics) and Loki (for logs) as datasources.
 
-TODO: add `.json` file for the example dashboard.
-
-## Helpful Resources
+## Additional Resources
 
 - [Claude Code Monitoring Documentation](https://docs.claude.com/en/docs/claude-code/monitoring-usage)
 - [Example AWS Monitoring](https://github.com/aws-solutions-library-samples/guidance-for-claude-code-with-amazon-bedrock/blob/main/assets/docs/MONITORING.md)
+- [OpenTelemetry Documentation](https://opentelemetry.io/docs/what-is-opentelemetry/)
+- [Grafana Documentation](https://grafana.com/docs/)
+- 
